@@ -71,7 +71,7 @@ elseif(OS_WINDOWS)
 endif()
 
 target_include_directories(relay-cli PUBLIC ../include)
-target_compile_definitions(relay-cli PRIVATE _POSIX_C_SOURCE=200112L)
+target_compile_definitions(relay-cli PRIVATE _POSIX_C_SOURCE=200809L)
 
 if(COMPILER_CLANG)
   target_compile_options(
