@@ -177,10 +177,12 @@ int main(int argc, char* argv[])
                 RelaySerializeChannelId channelId = 1;
                 RelayListener* listener = relayClientStartListen(&relayClient, appId, channelId);
                 hasCreatedRelayClient = true;
+                (void) listener;
                 CLOG_C_DEBUG(&relayClient.log, "start listening %" PRIX64, listener->userSessionId)
 
                 RelayConnector* connector = relayClientStartConnect(&relayClient, clientRealize.client.userId, appId,
                                                                     channelId);
+                (void) connector;
                 CLOG_C_DEBUG(&relayClient.log, "start listening %" PRIX64, connector->userSessionId)
             }
         }
