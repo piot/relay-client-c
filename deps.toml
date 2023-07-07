@@ -22,3 +22,7 @@ version = "*"
 [[development]]
 name = 'piot/udp-client-c'
 version = "*"
+
+[[development]]
+name = 'piot/guise-client-c'
+version = "*"

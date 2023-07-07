@@ -12,6 +12,9 @@ add_subdirectory("deps/piot/secure-random-c/src/lib")
 add_subdirectory("deps/piot/monotonic-time-c/src/lib")
 add_subdirectory("lib")
 
-# add_subdirectory("test")
 
-# add_subdirectory("examples")
+add_subdirectory("deps/piot/guise-client-c/src/lib")
+add_subdirectory("deps/piot/guise-serialize-c/src/lib")
+add_subdirectory("deps/piot/udp-client-c/src/lib")
+
+add_subdirectory("cli")

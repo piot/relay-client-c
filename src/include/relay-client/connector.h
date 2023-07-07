@@ -8,6 +8,7 @@
 #include <clog/clog.h>
 #include <datagram-transport/multi.h>
 #include <datagram-transport/transport.h>
+#include <datagram-transport/types.h>
 #include <discoid/circular_buffer.h>
 #include <monotonic-time/monotonic_time.h>
 #include <relay-client/socket.h>
@@ -51,7 +52,8 @@ typedef struct RelayConnector {
 
 int relayConnectorInit(RelayConnector* self, struct ImprintAllocator* memory, Clog log);
 void relayConnectorReset(RelayConnector* self);
-void relayConnectorReInit(RelayConnector* self, DatagramTransport* transportToRelayServer, RelaySerializeUserId userId,
+void relayConnectorReInit(RelayConnector* self, DatagramTransport* transportToRelayServer,
+                          RelaySerializeUserSessionId userSessionId, RelaySerializeUserId userId,
                           RelaySerializeApplicationId applicationId, RelaySerializeChannelId channelId);
 void relayConnectorDestroy(RelayConnector* self);
 void relayConnectorDisconnect(RelayConnector* self);

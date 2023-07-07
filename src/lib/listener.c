@@ -11,6 +11,7 @@ void relayListenerReInit(RelayListener* self, const RelayListenerSetup* setup)
 {
     self->transportToRelayServer = setup->transportToRelayServer;
     self->userSessionId = setup->authenticatedUserSessionId;
+    CLOG_ASSERT(self->userSessionId != 0, "User session id can not be zero")
     self->applicationId = setup->applicationId;
     self->channelId = setup->channelId;
     self->state = RelayListenerStateConnecting;

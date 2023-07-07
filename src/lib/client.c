@@ -295,7 +295,8 @@ static int relayClientReceiveAllDatagramsFromRelayServer(RelayClient* self)
 }
 
 int relayClientInit(RelayClient* self, RelaySerializeUserSessionId authenticatedUserSessionId,
-                    struct ImprintAllocator* memory, const char* prefix, Clog log)
+                    DatagramTransport transportToRelayServer, struct ImprintAllocator* memory, const char* prefix,
+                    Clog log)
 {
     char temp[32];
 
@@ -312,6 +313,10 @@ int relayClientInit(RelayClient* self, RelaySerializeUserSessionId authenticated
     }
 
     self->userSessionId = authenticatedUserSessionId;
+    CLOG_ASSERT(authenticatedUserSessionId != 0, "user session id can not be zero")
+    self->transportToRelayServer = transportToRelayServer;
+    self->log = log;
+
     return 0;
 }
 
@@ -342,7 +347,8 @@ RelayConnector* relayClientStartConnect(RelayClient* self, RelaySerializeUserId 
         return 0;
     }
 
-    relayConnectorReInit(connector, &self->transportToRelayServer, userId, applicationId, channelId);
+    relayConnectorReInit(connector, &self->transportToRelayServer, self->userSessionId, userId, applicationId,
+                         channelId);
 
     return connector;
 }

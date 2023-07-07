@@ -139,7 +139,8 @@ int relayConnectorInit(RelayConnector* self, struct ImprintAllocator* memory, Cl
     return 0;
 }
 
-void relayConnectorReInit(RelayConnector* self, DatagramTransport* transportToRelayServer, RelaySerializeUserId userId,
+void relayConnectorReInit(RelayConnector* self, DatagramTransport* transportToRelayServer,
+                          RelaySerializeUserSessionId userSessionId, RelaySerializeUserId userId,
                           RelaySerializeApplicationId applicationId, RelaySerializeChannelId channelId)
 {
     self->transportToRelayServer = *transportToRelayServer;
@@ -147,6 +148,7 @@ void relayConnectorReInit(RelayConnector* self, DatagramTransport* transportToRe
     self->connectToUserId = userId;
     self->applicationId = applicationId;
     self->channelId = channelId;
+    self->userSessionId = userSessionId;
 
     discoidBufferReset(&self->inBuffer);
 }
