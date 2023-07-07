@@ -1,0 +1,15 @@
+src/.cmake/api/v1
+src/.idea
+src/CMakeFiles
+src/Testing/Temporary
+src/deps/piot
+src/lib/CMakeFiles
+src/lib/Makefile
+src/lib/cmake_install.cmake
+src/.ninja_deps
+src/.ninja_log
+src/CMakeCache.txt
+src/Makefile
+src/build.ninja
+src/cmake_install.cmake
+src/cmake-build-debug
