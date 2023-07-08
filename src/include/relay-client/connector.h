@@ -27,8 +27,6 @@ typedef enum RelayConnectorState {
     RelayConnectorStateConnected,
 } RelayConnectorState;
 
-#define RELAY_CLIENT_MAX_LOCAL_USERS_COUNT (8)
-
 struct ImprintAllocator;
 
 typedef struct RelayConnector {
@@ -59,5 +57,6 @@ void relayConnectorDestroy(RelayConnector* self);
 void relayConnectorDisconnect(RelayConnector* self);
 int relayConnectorUpdate(RelayConnector* self, MonotonicTimeMs now);
 int relayConnectorPushPacket(RelayConnector* self, const uint8_t* data, size_t octetCountInPacket);
+ssize_t relayConnectorSend(RelayConnector* self, const uint8_t* data, size_t octetCount);
 
 #endif

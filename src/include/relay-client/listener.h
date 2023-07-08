@@ -8,6 +8,7 @@
 #include <clog/clog.h>
 #include <datagram-transport/multi.h>
 #include <datagram-transport/transport.h>
+#include <datagram-transport/types.h>
 #include <discoid/circular_buffer.h>
 #include <monotonic-time/monotonic_time.h>
 #include <relay-client/socket.h>
@@ -15,7 +16,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <datagram-transport/types.h>
 
 struct ImprintAllocator;
 
@@ -69,5 +69,9 @@ ssize_t relayListenerPushPacket(RelayListener* self, size_t relayConnectionIndex
                                 size_t octetCountInPacket);
 ssize_t relayListenerFindFreeConnectionIndex(RelayListener* self);
 RelayConnection* relayListenerFindConnection(RelayListener* self, RelaySerializeConnectionId connectionId);
+ssize_t relayListenerSendToConnectionIndex(RelayListener* self, size_t connectionIndex, const uint8_t* data,
+                                           size_t octetCount);
+ssize_t relayListenerReceivePacket(RelayListener* self, uint8_t* outConnectionIndex, uint8_t* octets,
+                                   size_t maxOctetCount);
 
 #endif

@@ -18,8 +18,8 @@ void relayListenerReInit(RelayListener* self, const RelayListenerSetup* setup)
     self->waitTime = 0;
 }
 
-static int relayListenerReceivePacket(RelayListener* self, uint8_t* outConnectionIndex, uint8_t* octets,
-                                      size_t maxOctetCount)
+ssize_t relayListenerReceivePacket(RelayListener* self, uint8_t* outConnectionIndex, uint8_t* octets,
+                                   size_t maxOctetCount)
 {
     size_t count = discoidBufferReadAvailable(&self->inBuffer);
     if (count < 1) {
@@ -142,12 +142,12 @@ static ssize_t multiTransportReceive(void* _self, int* receivedFromConnectionInd
     RelayListener* self = (RelayListener*) _self;
 
     uint8_t receivedFromConnectionOctetIndex;
-    int octetCount = relayListenerReceivePacket(self, &receivedFromConnectionOctetIndex, data, size);
+    ssize_t octetCount = relayListenerReceivePacket(self, &receivedFromConnectionOctetIndex, data, size);
     if (octetCount < 0) {
         CLOG_C_SOFT_ERROR(&self->log, "could not read in packet from relay")
     }
     if (octetCount > 0) {
-        CLOG_C_DEBUG(&self->log, "got packet from relay: connection:%d octetCount:%d", *receivedFromConnectionIndex,
+        CLOG_C_DEBUG(&self->log, "got packet from relay: connection:%d octetCount:%zd", *receivedFromConnectionIndex,
                      octetCount)
     }
 
@@ -210,4 +210,23 @@ ssize_t relayListenerPushPacket(RelayListener* self, size_t relayConnectionIndex
     discoidBufferWrite(&self->inBuffer, data, octetCountInPacket);
 
     return (ssize_t) octetCountInPacket;
+}
+
+ssize_t relayListenerSendToConnectionIndex(RelayListener* self, size_t connectionIndex, const uint8_t* data,
+                                           size_t octetCount)
+{
+    if (connectionIndex >= RELAY_CLIENT_MAX_LISTENER_CONNECTIONS_COUNT) {
+        CLOG_ERROR("illegal index %zd", connectionIndex)
+        // return -4;
+    }
+
+    RelayConnection* connection = &self->connections[connectionIndex];
+    if (connection->connectionId == 0) {
+        CLOG_ERROR("can not send on index with no connection")
+    }
+
+    CLOG_C_DEBUG(&self->log, "sending packet on connection index %zu", connectionIndex)
+
+    return relaySocketSendPacket(self->transportToRelayServer, self->userSessionId, connection->connectionId, data,
+                                 octetCount);
 }

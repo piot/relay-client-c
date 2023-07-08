@@ -17,7 +17,8 @@ static int sendConnectRequest(RelayConnector* self, FldOutStream* outStream)
 
     self->waitTime = 10;
 
-    CLOG_C_DEBUG(&self->log, "sending connect request to userId %" PRIX64, data.connectToUserId)
+    CLOG_C_DEBUG(&self->log, "sending connect request to userId %" PRIX64 " with sessionId:%" PRIX64,
+                 data.connectToUserId, self->userSessionId)
 
     return relaySerializeClientOutRequestConnect(outStream, self->userSessionId, &data);
 }
@@ -67,6 +68,13 @@ static int relayConnectorUpdateOut(RelayConnector* self, MonotonicTimeMs now)
 int relayConnectorUpdate(RelayConnector* self, MonotonicTimeMs now)
 {
     return relayConnectorUpdateOut(self, now);
+}
+
+ssize_t relayConnectorSend(RelayConnector* self, const uint8_t* data, size_t octetCount)
+{
+    CLOG_C_DEBUG(&self->log, "sending packet to relay %zu", octetCount)
+    return relaySocketSendPacket(self->transportToRelayServer, self->userSessionId, self->connectionId, data,
+                                 octetCount);
 }
 
 static int transportSend(void* _self, const uint8_t* data, size_t size)

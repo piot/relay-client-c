@@ -155,6 +155,9 @@ int main(int argc, char* argv[])
 
     bool hasCreatedRelayClient = false;
 
+    RelayConnector* connector = 0;
+    RelayListener* listener = 0;
+
     while (true) {
         usleep(16 * 1000);
 
@@ -175,14 +178,11 @@ int main(int argc, char* argv[])
 
                 RelaySerializeApplicationId appId = 42;
                 RelaySerializeChannelId channelId = 1;
-                RelayListener* listener = relayClientStartListen(&relayClient, appId, channelId);
+                listener = relayClientStartListen(&relayClient, appId, channelId);
                 hasCreatedRelayClient = true;
-                (void) listener;
                 CLOG_C_DEBUG(&relayClient.log, "start listening %" PRIX64, listener->userSessionId)
 
-                RelayConnector* connector = relayClientStartConnect(&relayClient, clientRealize.client.userId, appId,
-                                                                    channelId);
-                (void) connector;
+                connector = relayClientStartConnect(&relayClient, clientRealize.client.userId, appId, channelId);
                 CLOG_C_DEBUG(&relayClient.log, "start listening %" PRIX64, connector->userSessionId)
             }
         }
@@ -191,6 +191,26 @@ int main(int argc, char* argv[])
             int updateErr = relayClientUpdate(&relayClient, monotonicTimeMsNow());
             if (updateErr < 0) {
                 return updateErr;
+            }
+
+            if (connector != 0 && connector->state == RelayConnectorStateConnected) {
+                relayConnectorSend(connector, (const uint8_t*) "hello", 6);
+            }
+
+            if (listener != 0 && listener->state == RelayListenerStateConnected) {
+                if (listener->connections[0].connectionId != 0) {
+                    relayListenerSendToConnectionIndex(listener, 0, (const uint8_t*) "world!", 7);
+                }
+
+                uint8_t outConnectionIndex;
+                static uint8_t buf[DATAGRAM_TRANSPORT_MAX_SIZE];
+                ssize_t octetCountRead = relayListenerReceivePacket(listener, &outConnectionIndex, buf,
+                                                                    DATAGRAM_TRANSPORT_MAX_SIZE);
+                if (octetCountRead > 0) {
+                    CLOG_C_DEBUG(&relayClient.log,
+                                 "found packet in listener from connectionIndex %hhu octetCount:%zd '%s'",
+                                 outConnectionIndex, octetCountRead, buf)
+                }
             }
         }
     }

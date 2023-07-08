@@ -81,6 +81,7 @@ static int onIncomingPacket(RelayClient* self, FldInStream* inStream)
 
     int packetHeaderErr = relaySerializeClientInPacketFromServer(inStream, &packetFromServerToClient);
     if (packetHeaderErr < 0) {
+        CLOG_C_SOFT_ERROR(&self->log, "could not deserialize in packet header")
         return packetHeaderErr;
     }
 
@@ -90,6 +91,8 @@ static int onIncomingPacket(RelayClient* self, FldInStream* inStream)
     int lookupErr = relayClientFindListenerAndConnection(self, packetFromServerToClient.connectionId, &listener,
                                                          &connectionIndex);
     if (lookupErr >= 0) {
+        CLOG_C_VERBOSE(&self->log, "found listener %" PRIX64 " push packet to connection index %zu",
+                       listener->listenerId, connectionIndex)
         ssize_t octetsWritten = relayListenerPushPacket(listener, connectionIndex, inStream->p,
                                                         packetFromServerToClient.packetOctetCount);
         if (octetsWritten < 0) {
@@ -101,14 +104,18 @@ static int onIncomingPacket(RelayClient* self, FldInStream* inStream)
 
     RelayConnector* connector = relayClientFindConnector(self, packetFromServerToClient.connectionId);
     if (connector == 0) {
+        CLOG_C_NOTICE(&self->log, "could not find a destination for packet, dropping it")
         return -2;
     }
 
     ssize_t octetsWritten = relayConnectorPushPacket(connector, inStream->p, packetFromServerToClient.packetOctetCount);
-
     if (octetsWritten < 0) {
+        CLOG_C_SOFT_ERROR(&self->log, "could not push packet to connector. buffer full?")
         return (int) octetsWritten;
     }
+
+    CLOG_C_VERBOSE(&self->log, "found connector to push packet to. octet count: %hu",
+                   packetFromServerToClient.packetOctetCount)
 
     return 0;
 }
@@ -227,13 +234,15 @@ static int onConnectionRequestToListener(RelayClient* self, FldInStream* inStrea
 
     int err = relaySerializeClientInConnectRequestToListener(inStream, &data);
     if (err < 0) {
+        CLOG_C_SOFT_ERROR(&self->log, "could not deserialie connect request %d", err)
         return err;
     }
 
     RelayListener* listener = relayClientFindListener(self, data.listenerId);
     if (listener == 0) {
-        CLOG_SOFT_ERROR("suspicious, we got a connection request for a listener we don't know about %" PRIx64,
-                        data.listenerId)
+        CLOG_C_SOFT_ERROR(&self->log,
+                          "suspicious, we got a connection request for a listener we don't know about %" PRIx64,
+                          data.listenerId)
         return -5;
     }
 
@@ -241,7 +250,7 @@ static int onConnectionRequestToListener(RelayClient* self, FldInStream* inStrea
     if (connection == 0) {
         ssize_t foundIndex = relayListenerFindFreeConnectionIndex(listener);
         if (foundIndex < 0) {
-            CLOG_SOFT_ERROR("out of connection capacity")
+            CLOG_C_SOFT_ERROR(&self->log, "out of connection capacity")
             return -4;
         }
         connection = &listener->connections[foundIndex];
@@ -344,11 +353,14 @@ RelayConnector* relayClientStartConnect(RelayClient* self, RelaySerializeUserId 
 {
     RelayConnector* connector = relayClientFindFreeConnector(self);
     if (connector == 0) {
+        CLOG_C_SOFT_ERROR(&self->log, "startConnect: no free connectors")
         return 0;
     }
 
     relayConnectorReInit(connector, &self->transportToRelayServer, self->userSessionId, userId, applicationId,
                          channelId);
+
+    CLOG_C_DEBUG(&self->log, "startConnect: %" PRIX64 " to userId:%" PRIX64, self->userSessionId, userId)
 
     return connector;
 }
