@@ -14,7 +14,7 @@
 #include <relay-client/client.h>
 #include <stdio.h>
 #include <udp-client/udp_client.h>
-#include <unistd.h>
+#include <time.h>
 
 clog_config g_clog;
 char g_clog_temp_str[CLOG_TEMP_STR_SIZE];
@@ -159,7 +159,11 @@ int main(int argc, char* argv[])
     RelayListener* listener = 0;
 
     while (true) {
-        usleep(16 * 1000);
+        struct timespec ts;
+
+        ts.tv_sec = 0;
+        ts.tv_nsec = 16 * 1000000;
+        nanosleep(&ts, &ts);
 
         MonotonicTimeMs now = monotonicTimeMsNow();
         guiseClientRealizeUpdate(&clientRealize, now);
