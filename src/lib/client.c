@@ -369,6 +369,8 @@ int relayClientUpdate(RelayClient* self, MonotonicTimeMs now)
 {
     (void) now;
 
+    CLOG_C_VERBOSE(&self->log, "read all datagrams from relay server")
+
     int receiveErr = relayClientReceiveAllDatagramsFromRelayServer(self);
     if (receiveErr < 0) {
         return receiveErr;

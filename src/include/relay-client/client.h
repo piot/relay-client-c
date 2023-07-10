@@ -20,8 +20,9 @@ typedef struct RelayClient {
     uint8_t receiveBuf[DATAGRAM_TRANSPORT_MAX_SIZE];
 } RelayClient;
 
-int relayClientInit(RelayClient* self,  RelaySerializeUserSessionId authenticatedUserSessionId, DatagramTransport transportToRelayServer,
-                    struct ImprintAllocator* memory, const char* prefix, Clog log);
+int relayClientInit(RelayClient* self, RelaySerializeUserSessionId authenticatedUserSessionId,
+                    DatagramTransport transportToRelayServer, struct ImprintAllocator* memory, const char* prefix,
+                    Clog log);
 
 RelayListener* relayClientStartListen(RelayClient* self, RelaySerializeApplicationId applicationId,
                                       RelaySerializeChannelId channelId);
