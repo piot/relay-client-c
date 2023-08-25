@@ -5,7 +5,7 @@
 #include <relay-client/debug.h>
 #include <relay-client/listener.h>
 
-#if defined CONFIGURATION_DEBUG
+#if defined CLOG_LOG_ENABLED
 
 static const char* stateToString(RelayListenerState state)
 {
@@ -25,6 +25,9 @@ static const char* stateToString(RelayListenerState state)
 
 void relayListenerDebugOutput(const RelayListener* self)
 {
-    (void) self;
+#if defined CLOG_LOG_ENABLED
     CLOG_C_INFO(&self->log, "state: %s", stateToString(self->state))
+#else
+    (void) self;
+#endif
 }
