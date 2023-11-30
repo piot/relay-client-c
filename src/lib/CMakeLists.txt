@@ -8,16 +8,15 @@ add_library(relay-client STATIC
   listener.c
   socket.c)
 
-
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
-include(Tornado)
+include(Tornado.cmake)
 set_tornado(relay-client)
 
 target_include_directories(relay-client PUBLIC ../include)
 
-target_link_libraries(relay-client 
-  PUBLIC relay-serialize
-  PUBLIC datagram-transport
-  PUBLIC monotonic-time
-  PUBLIC discoid)
+
+target_link_libraries(relay-client PUBLIC 
+  relay-serialize
+  datagram-transport
+  monotonic-time
+  discoid)
 

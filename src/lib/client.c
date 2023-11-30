@@ -267,7 +267,7 @@ static int relayClientFeed(RelayClient* self, const uint8_t* data, size_t len)
 
     uint8_t cmd;
     fldInStreamReadUInt8(&inStream, &cmd);
-    CLOG_C_VERBOSE(&self->log, "cmd: %s", relaySerializeCmdToString(cmd))
+    CLOG_C_VERBOSE(&self->log, "received command: %s", relaySerializeCmdToString(cmd))
     switch (cmd) {
         case relaySerializeCmdPacketToClient:
             return onIncomingPacket(self, &inStream);
