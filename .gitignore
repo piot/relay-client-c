@@ -18,3 +18,4 @@ users.txt
 *.a
 *.ninja
 .vscode/
+CTestTestfile.cmake

@@ -1,7 +1,7 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Peter Bjorklund. All rights reserved.
+/*----------------------------------------------------------------------------------------------------------
+ *  Copyright (c) Peter Bjorklund. All rights reserved. https://github.com/piot/relay-client-c
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------------------------*/
 #include <datagram-transport/types.h>
 #include <flood/in_stream.h>
 #include <flood/out_stream.h>
@@ -69,6 +69,7 @@ RelayConnection* relayListenerFindConnection(RelayListener* self, RelaySerialize
 
 static int sendListenRequest(RelayListener* self, FldOutStream* outStream)
 {
+    CLOG_C_DEBUG(&self->log, "send listen request")
     RelaySerializeListenRequestFromClientToServer data;
     data.channelId = self->channelId;
     data.appId = self->applicationId;
@@ -118,6 +119,7 @@ static int relayListenerUpdateOut(RelayListener* self, MonotonicTimeMs now)
 
 int relayListenerUpdate(RelayListener* self, MonotonicTimeMs now)
 {
+    CLOG_C_VERBOSE(&self->log, "listener update")
     return relayListenerUpdateOut(self, now);
 }
 

@@ -1,7 +1,7 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Peter Bjorklund. All rights reserved.
+/*----------------------------------------------------------------------------------------------------------
+ *  Copyright (c) Peter Bjorklund. All rights reserved. https://github.com/piot/relay-client-c
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------------------------*/
 #include <datagram-transport/types.h>
 #include <flood/out_stream.h>
 #include <inttypes.h>
@@ -56,6 +56,7 @@ static int relayConnectorUpdateOut(RelayConnector* self, MonotonicTimeMs now)
     (void) now;
 
     if (self->waitTime > 0) {
+        CLOG_C_VERBOSE(&self->log, "waitTime: %zu", self->waitTime)
         self->waitTime--;
         return 0;
     }
@@ -67,6 +68,7 @@ static int relayConnectorUpdateOut(RelayConnector* self, MonotonicTimeMs now)
 
 int relayConnectorUpdate(RelayConnector* self, MonotonicTimeMs now)
 {
+    CLOG_C_VERBOSE(&self->log, "connector update")
     return relayConnectorUpdateOut(self, now);
 }
 
@@ -138,10 +140,12 @@ int relayConnectorPushPacket(RelayConnector* self, const uint8_t* data, size_t o
 int relayConnectorInit(RelayConnector* self, struct ImprintAllocator* memory, Clog log)
 {
     self->log = log;
+    CLOG_C_VERBOSE(&self->log, "initializing relay client with discoid 32K buffer")
     self->state = RelayConnectorStateIdle;
     self->connectorTransport.self = self;
     self->connectorTransport.send = transportSend;
     self->connectorTransport.receive = transportReceive;
+    self->waitTime = 0;
     discoidBufferInit(&self->inBuffer, memory, 32 * 1024);
 
     return 0;
@@ -157,6 +161,7 @@ void relayConnectorReInit(RelayConnector* self, DatagramTransport* transportToRe
     self->applicationId = applicationId;
     self->channelId = channelId;
     self->userSessionId = userSessionId;
+    self->waitTime = 0;
 
     discoidBufferReset(&self->inBuffer);
 }

@@ -1,7 +1,7 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Peter Bjorklund. All rights reserved.
+/*----------------------------------------------------------------------------------------------------------
+ *  Copyright (c) Peter Bjorklund. All rights reserved. https://github.com/piot/relay-client-c
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+ *--------------------------------------------------------------------------------------------------------*/
 #ifndef RELAY_CLIENT_CLIENT_H
 #define RELAY_CLIENT_CLIENT_H
 
@@ -23,12 +23,10 @@ typedef struct RelayClient {
 int relayClientInit(RelayClient* self, RelaySerializeUserSessionId authenticatedUserSessionId,
                     DatagramTransport transportToRelayServer, struct ImprintAllocator* memory, const char* prefix,
                     Clog log);
-
 RelayListener* relayClientStartListen(RelayClient* self, RelaySerializeApplicationId applicationId,
                                       RelaySerializeChannelId channelId);
 RelayConnector* relayClientStartConnect(RelayClient* self, RelaySerializeUserId userId,
                                         RelaySerializeApplicationId applicationId, RelaySerializeChannelId channelId);
-
 int relayClientUpdate(RelayClient* self, MonotonicTimeMs now);
 
 #endif
