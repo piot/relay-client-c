@@ -6,11 +6,8 @@
 #include <flood/in_stream.h>
 #include <inttypes.h>
 #include <relay-client/client.h>
-#include <relay-client/listener.h>
 #include <relay-serialize/client_in.h>
-#include <relay-serialize/client_out.h>
 #include <relay-serialize/debug.h>
-#include <relay-serialize/serialize.h>
 
 static int relayClientFindListenerAndConnection(RelayClient* self, RelaySerializeConnectionId connectionId,
                                                 RelayListener** outListener, size_t* outConnectionIndex)
@@ -104,7 +101,8 @@ static int onIncomingPacket(RelayClient* self, FldInStream* inStream)
 
     RelayConnector* connector = relayClientFindConnector(self, packetFromServerToClient.connectionId);
     if (connector == 0) {
-        CLOG_C_NOTICE(&self->log, "could not find a destination for packet, dropping it")
+        CLOG_C_NOTICE(&self->log, "could not find a destination for packet for connection id %" PRIX64 ", dropping it",
+                      packetFromServerToClient.connectionId)
         return -2;
     }
 
@@ -200,8 +198,10 @@ static int onConnectorResponse(RelayClient* self, FldInStream* inStream)
     }
 
     if (connector->state == RelayConnectorStateConnecting) {
-        CLOG_C_DEBUG(&self->log, "connector is connected to the relay server")
+        CLOG_C_DEBUG(&self->log, "connector is connected to the relay server on connection id %" PRIX64 " request:%hhu",
+                     data.assignedConnectionId, data.requestId)
         connector->state = RelayConnectorStateConnected;
+        connector->connectionId = data.assignedConnectionId;
     }
 
     return 0;
@@ -255,6 +255,8 @@ static int onConnectionRequestToListener(RelayClient* self, FldInStream* inStrea
         }
         connection = &listener->connections[foundIndex];
         connection->connectionId = data.connectionId;
+        CLOG_C_DEBUG(&self->log, "connection id %" PRIX64 " established on listener at index %zd", data.connectionId,
+                     foundIndex)
     }
 
     return 0;
@@ -360,7 +362,7 @@ RelayConnector* relayClientStartConnect(RelayClient* self, RelaySerializeUserId 
     relayConnectorReInit(connector, &self->transportToRelayServer, self->userSessionId, userId, applicationId,
                          channelId);
 
-    CLOG_C_DEBUG(&self->log, "startConnect: %" PRIX64 " to userId:%" PRIX64, self->userSessionId, userId)
+    CLOG_C_DEBUG(&self->log, "startConnect: user sessionID %" PRIX64 " to userId:%" PRIX64, self->userSessionId, userId)
 
     return connector;
 }
@@ -369,7 +371,7 @@ int relayClientUpdate(RelayClient* self, MonotonicTimeMs now)
 {
     (void) now;
 
-    //CLOG_C_VERBOSE(&self->log, "read all datagrams from relay server")
+    // CLOG_C_VERBOSE(&self->log, "read all datagrams from relay server")
 
     int receiveErr = relayClientReceiveAllDatagramsFromRelayServer(self);
     if (receiveErr < 0) {

@@ -56,10 +56,11 @@ static int relayConnectorUpdateOut(RelayConnector* self, MonotonicTimeMs now)
     (void) now;
 
     if (self->waitTime > 0) {
-        CLOG_C_VERBOSE(&self->log, "waitTime: %zu", self->waitTime)
         self->waitTime--;
         return 0;
     }
+
+
 
     self->waitTime = 5;
 
@@ -68,7 +69,7 @@ static int relayConnectorUpdateOut(RelayConnector* self, MonotonicTimeMs now)
 
 int relayConnectorUpdate(RelayConnector* self, MonotonicTimeMs now)
 {
-    CLOG_C_VERBOSE(&self->log, "connector update")
+ //   CLOG_C_VERBOSE(&self->log, "connector update")
     return relayConnectorUpdateOut(self, now);
 }
 
